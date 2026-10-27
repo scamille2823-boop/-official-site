@@ -11,12 +11,12 @@ site
 ~$*
 
 # Internal source material must never enter the public site repo
-app/
-brand/
-content/
-product/
-reference/
-docs/
-*.make
+/app/
+/brand/
+/content/
+/product/
+/reference/
+/docs/
+/*.make
 *.xlsx
 *.pdf
