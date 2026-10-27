@@ -6,7 +6,7 @@
 - `V2`：第二版，沉浸式首屏与全维 App 展示
 - `V3`：第三版，基于 V2 继续迭代（开发中）
 
-线上入口：`https://scamille2823-boop.github.io/lingyue-official-site/`
+线上入口：`https://scamille2823-boop.github.io/-official-site/`
 
 ## 本地运行
 
