@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#020617" />
+    <meta name="description" content="灵跃健康官网版本档案：第一版、第二版与第三版开发预览。" />
+    <title>灵跃健康｜版本档案</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --teal: #2dd4bf;
+        --sky: #0ea5e9;
+        --ink: #020617;
+        --line: rgba(148, 163, 184, 0.18);
+        --muted: rgba(226, 232, 240, 0.58);
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(ellipse 80% 55% at 18% 0%, rgba(45, 212, 191, 0.18), transparent 62%),
+          radial-gradient(ellipse 70% 50% at 88% 12%, rgba(14, 165, 233, 0.16), transparent 60%),
+          var(--ink);
+        color: #f8fafc;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: inherit; text-decoration: none; }
+      .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+      header { padding: 36px 0 16px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+      .brand { display: inline-flex; align-items: center; gap: 12px; }
+      .mark {
+        display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px;
+        border: 1px solid rgba(45, 212, 191, 0.38);
+        background: linear-gradient(135deg, rgba(45, 212, 191, 0.18), rgba(14, 165, 233, 0.08));
+        box-shadow: 0 10px 30px rgba(14, 165, 233, 0.15);
+      }
+      .mark svg { width: 24px; height: 24px; }
+      .brand-name { font-size: 17px; font-weight: 650; letter-spacing: -0.03em; }
+      .brand-sub { display: block; margin-top: 2px; font-size: 10px; letter-spacing: 0.32em; color: var(--muted); }
+      .top-note { font-size: 12px; color: var(--muted); letter-spacing: 0.08em; }
+      main { padding: 44px 0 30px; }
+      .eyebrow { margin: 0; font-size: 12px; font-weight: 650; letter-spacing: 0.34em; color: var(--teal); }
+      h1 {
+        margin: 18px 0 0; max-width: 800px;
+        font-size: clamp(2.5rem, 6vw, 4.6rem); line-height: 1.06; letter-spacing: -0.055em; font-weight: 650;
+      }
+      .lede { margin: 22px 0 0; max-width: 650px; color: var(--muted); font-size: 15px; line-height: 1.9; }
+      .meta {
+        margin-top: 28px; display: flex; flex-wrap: wrap; gap: 10px 20px;
+        padding-top: 22px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted);
+      }
+      .meta span { display: inline-flex; align-items: center; gap: 8px; }
+      .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--teal); box-shadow: 0 0 12px var(--teal); }
+      .grid { margin-top: 44px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+      .card {
+        position: relative; display: flex; flex-direction: column; overflow: hidden;
+        min-height: 440px; border: 1px solid var(--line); border-radius: 26px;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.82), rgba(2, 6, 23, 0.88));
+        transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+      }
+      .card:hover { transform: translateY(-4px); border-color: rgba(45, 212, 191, 0.42); box-shadow: 0 24px 60px rgba(2, 6, 23, 0.55); }
+      .thumb { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #0f172a; }
+      .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .8s cubic-bezier(.22,1,.36,1); }
+      .card:hover .thumb img { transform: scale(1.04); }
+      .thumb::after {
+        content: ""; position: absolute; inset: 0;
+        background: linear-gradient(180deg, transparent 35%, rgba(2, 6, 23, 0.72) 100%);
+      }
+      .tag {
+        position: absolute; z-index: 1; top: 14px; left: 14px; padding: 7px 11px;
+        border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px;
+        background: rgba(2, 6, 23, 0.55); backdrop-filter: blur(12px);
+        font-size: 10px; font-weight: 650; letter-spacing: 0.18em; color: rgba(248, 250, 252, 0.86);
+      }
+      .tag.current { border-color: rgba(45, 212, 191, 0.5); color: #99f6e4; }
+      .body { display: flex; flex: 1; flex-direction: column; padding: 22px 22px 24px; }
+      .version { font-size: 11px; font-weight: 650; letter-spacing: 0.28em; color: var(--teal); }
+      h2 { margin: 10px 0 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.035em; font-weight: 620; }
+      .desc { margin: 12px 0 0; color: var(--muted); font-size: 13.5px; line-height: 1.8; }
+      .spacer { flex: 1; min-height: 22px; }
+      .enter {
+        display: inline-flex; align-items: center; justify-content: space-between; gap: 12px;
+        width: 100%; padding: 12px 16px; border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04); color: rgba(248, 250, 252, 0.9);
+        font-size: 13px; font-weight: 600; transition: background .25s ease, border-color .25s ease;
+      }
+      .enter:hover { background: rgba(45, 212, 191, 0.1); border-color: rgba(45, 212, 191, 0.45); }
+      .enter svg { width: 15px; height: 15px; color: var(--teal); }
+      .disabled { opacity: .58; pointer-events: none; }
+      .disabled .enter { border-style: dashed; }
+      footer { padding: 50px 0 34px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.9; }
+      .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; }
+      @media (max-width: 900px) {
+        .grid { grid-template-columns: 1fr; }
+        .card { min-height: 0; }
+        .thumb { aspect-ratio: 16 / 9; }
+        header { padding-top: 24px; }
+        .top-note { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <a class="brand" href="./" aria-label="灵跃健康版本档案首页">
+          <span class="mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none">
+              <defs>
+                <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#2dd4bf" />
+                  <stop offset="100%" stop-color="#0ea5e9" />
+                </linearGradient>
+              </defs>
+              <path d="M30.5 8.5A15.5 15.5 0 1 0 30.5 31.5" stroke="url(#ring)" stroke-width="2.6" stroke-linecap="round" />
+              <path d="M31.5 6l1.2 3.6L36.5 11l-3.8 1.4L31.5 16l-1.2-3.6L26.5 11l3.8-1.4z" fill="#2dd4bf" />
+            </svg>
+          </span>
+          <span>
+            <span class="brand-name">灵跃健康</span>
+            <span class="brand-sub">LINGYUE HEALTH</span>
+          </span>
+        </a>
+        <span class="top-note">VERSION ARCHIVE · 2026</span>
+      </header>
+
+      <main>
+        <p class="eyebrow">版本档案</p>
+        <h1>同一个品牌，<br />三种不同的表达。</h1>
+        <p class="lede">
+          每一版都保留了当时的设计判断。选择一个版本进入，查看完整的首屏、产品、App 与品牌叙事。
+        </p>
+        <div class="meta">
+          <span><i class="dot"></i>3 个版本</span>
+          <span>静态站点 · GitHub Pages</span>
+          <span>最近更新：2026.10</span>
+        </div>
+
+        <section class="grid" aria-label="官网版本列表">
+          <article class="card">
+            <div class="thumb">
+              <span class="tag">V1 · 初版</span>
+              <img src="./v1/images/ring-duo.jpg" alt="第一版首页使用的灵跃智能戒指产品图" loading="lazy" />
+            </div>
+            <div class="body">
+              <span class="version">V1.0.0</span>
+              <h2>智能体戒指官网</h2>
+              <p class="desc">以产品为中心的初版叙事，建立戒指、健康管理与品牌信息的基础结构。</p>
+              <div class="spacer"></div>
+              <a class="enter" href="./v1/">
+                进入第一版
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              </a>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="thumb">
+              <span class="tag">V2 · 当前线上</span>
+              <img src="./v2/images/hero-home.jpg" alt="第二版首页的居家健康场景" loading="lazy" />
+            </div>
+            <div class="body">
+              <span class="version">V2.0.0</span>
+              <h2>沉浸式健康叙事</h2>
+              <p class="desc">人物场景首屏、三色产品展示与全维 App 界面，把健康管理放进日常。</p>
+              <div class="spacer"></div>
+              <a class="enter" href="./v2/">
+                进入第二版
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              </a>
+            </div>
+          </article>
+
+          <article class="card disabled" aria-disabled="true">
+            <div class="thumb">
+              <span class="tag current">V3 · 开发中</span>
+              <img src="./v3/images/hero-home.jpg" alt="第三版开发预览" loading="lazy" />
+            </div>
+            <div class="body">
+              <span class="version">V3.0.0</span>
+              <h2>下一版正在打磨</h2>
+              <p class="desc">第三版正在基于当前版本继续迭代，完成后会在这里开放访问。</p>
+              <div class="spacer"></div>
+              <span class="enter disabled" aria-disabled="true">
+                即将开放
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              </span>
+            </div>
+          </article>
+        </section>
+      </main>
+
+      <footer>
+        <div class="footer-inner">
+          <span>© 2026 灵跃健康 · 昊克云智（杭州）科技有限公司</span>
+          <span>本产品用于生理信号监测与健康管理参考，不替代专业医生诊断。</span>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
