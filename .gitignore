@@ -1,0 +1,22 @@
+node_modules
+dist
+site
+.DS_Store
+*.local
+.vscode
+.idea
+.env
+.env.*
+*.log
+~$*
+
+# Internal source material must never enter the public site repo
+app/
+brand/
+content/
+product/
+reference/
+docs/
+*.make
+*.xlsx
+*.pdf
