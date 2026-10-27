@@ -1,0 +1,92 @@
+name: Deploy version archive
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build current version (V3)
+        run: |
+          npm ci
+          npm run build -- --base=./
+          node scripts/postbuild.mjs dist V3 ../
+          mkdir -p site/v3
+          cp -r dist/. site/v3/
+
+      - name: Checkout V1 source
+        uses: actions/checkout@v4
+        with:
+          ref: v1.0.0
+          path: v1-src
+
+      - name: Build V1
+        run: |
+          cd v1-src
+          npm ci
+          npm run build -- --base=./
+          cd ..
+          node scripts/postbuild.mjs v1-src/dist V1 ../
+          mkdir -p site/v1
+          cp -r v1-src/dist/. site/v1/
+
+      - name: Checkout V2 source
+        uses: actions/checkout@v4
+        with:
+          ref: v2.0.0
+          path: v2-src
+
+      - name: Build V2
+        run: |
+          cd v2-src
+          npm ci
+          npm run build -- --base=./
+          cd ..
+          node scripts/postbuild.mjs v2-src/dist V2 ../
+          mkdir -p site/v2
+          cp -r v2-src/dist/. site/v2/
+
+      - name: Verify subpath-safe assets
+        run: node scripts/check-assets.mjs dist v1-src/dist v2-src/dist
+
+      - name: Add version hub
+        run: cp versions/index.html site/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
