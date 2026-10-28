@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   MotionConfig,
@@ -6,6 +6,11 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
+
+const MOCK_VISITOR_COUNT = 12850;
+const VISITOR_COUNT_LABEL = new Intl.NumberFormat("zh-CN").format(
+  MOCK_VISITOR_COUNT,
+);
 
 const EASE = [0.22, 1, 0.36, 1];
 const fadeUp = {
@@ -110,7 +115,7 @@ const NAV_LINKS = [
   { href: "#faq", label: "常见问题" },
 ];
 
-function SiteNav() {
+function SiteNav({ onPurchase }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -122,8 +127,13 @@ function SiteNav() {
           onClick={() => setOpen(false)}
         >
           <BrandMark className="h-8 w-8 lg:h-9 lg:w-9" />
-          <span className="text-[17px] font-semibold tracking-[-0.02em] text-slate-900 lg:text-lg">
-            灵跃健康
+          <span className="flex flex-col leading-none">
+            <span className="text-[17px] font-semibold tracking-[-0.02em] text-slate-900 lg:text-lg">
+              灵跃健康
+            </span>
+            <span className="mt-1 text-[9px] font-semibold uppercase tracking-[0.32em] text-slate-400">
+              SynChord
+            </span>
           </span>
         </a>
 
@@ -141,13 +151,15 @@ function SiteNav() {
         </nav>
 
         <div className="hidden justify-end lg:flex">
-          <a
-            href="#contact"
+          <button
+            type="button"
+            onClick={onPurchase}
+            aria-haspopup="dialog"
             className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-400 to-sky-500 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(14,165,233,0.28)] transition-transform hover:scale-[1.03]"
           >
-            产品咨询
+            立即购买
             <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </a>
+          </button>
         </div>
 
         <button
@@ -182,14 +194,18 @@ function SiteNav() {
                   <ChevronRightIcon className="h-4 w-4 text-slate-400" />
                 </a>
               ))}
-              <a
-                href="#contact"
-                onClick={() => setOpen(false)}
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  onPurchase();
+                }}
+                aria-haspopup="dialog"
                 className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-teal-400 to-sky-500 px-5 py-3 text-sm font-semibold text-white"
               >
-                产品咨询
+                立即购买
                 <ArrowIcon className="h-4 w-4" />
-              </a>
+              </button>
             </div>
           </motion.div>
         )}
@@ -217,7 +233,7 @@ const HERO_SLIDES = [
   },
 ];
 
-function Hero() {
+function Hero({ onPurchase }) {
   const heroRef = useRef(null);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -297,18 +313,38 @@ function Hero() {
             </motion.h1>
 
             <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
+              className="mt-7 inline-flex w-fit max-w-full items-center gap-2.5 rounded-full border border-white/70 bg-white/55 px-4 py-2 text-[11px] font-medium text-slate-600 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:text-xs lg:mt-8"
+            >
+              <span className="relative flex h-2 w-2 flex-none">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75 motion-reduce:animate-none" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              <span className="truncate">
+                Live · 累计访问人数：
+                <span className="font-semibold tabular-nums text-slate-900">
+                  {VISITOR_COUNT_LABEL}
+                </span>
+              </span>
+            </motion.div>
+
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: EASE, delay: 0.25 }}
-              className="mt-9 flex flex-wrap items-center gap-3 lg:mt-11"
+              transition={{ duration: 0.8, ease: EASE, delay: 0.3 }}
+              className="mt-7 flex flex-wrap items-center gap-3 lg:mt-9"
             >
-              <a
-                href="#colors"
+              <button
+                type="button"
+                onClick={onPurchase}
+                aria-haspopup="dialog"
                 className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-400 to-sky-500 px-7 py-4 text-sm font-semibold text-white shadow-[0_14px_34px_rgba(14,165,233,0.32)] transition-transform hover:scale-[1.02]"
               >
-                探索产品
+                立即购买
                 <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </a>
+              </button>
               <a
                 href="#value"
                 className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 bg-white/90 px-7 py-4 text-sm font-semibold text-slate-900 backdrop-blur transition-transform hover:scale-[1.02]"
@@ -634,7 +670,7 @@ const VERSIONS = [
   },
 ];
 
-function VersionCard({ version }) {
+function VersionCard({ version, onPurchase }) {
   const dark = version.theme === "dark";
 
   return (
@@ -695,24 +731,26 @@ function VersionCard({ version }) {
               </li>
             ))}
           </ul>
-          <a
-            href="#contact"
+          <button
+            type="button"
+            onClick={onPurchase}
+            aria-haspopup="dialog"
             className={`group mt-2 inline-flex w-fit items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-transform hover:scale-[1.02] ${
               dark
                 ? "bg-white text-slate-900"
                 : "bg-slate-900 text-white"
             }`}
           >
-            产品咨询
+            立即购买
             <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </a>
+          </button>
         </div>
       </div>
     </article>
   );
 }
 
-function VersionCompare() {
+function VersionCompare({ onPurchase }) {
   const [index, setIndex] = useState(0);
 
   return (
@@ -793,7 +831,11 @@ function VersionCompare() {
             className="flex w-[200%] cursor-grab active:cursor-grabbing"
           >
             {VERSIONS.map((version) => (
-              <VersionCard key={version.key} version={version} />
+              <VersionCard
+                key={version.key}
+                version={version}
+                onPurchase={onPurchase}
+              />
             ))}
           </motion.div>
         </div>
@@ -806,19 +848,72 @@ function VersionCompare() {
   );
 }
 
-const APP_SHOTS = [
-  { src: "/images/app/heart-rate.png", label: "心率" },
-  { src: "/images/app/spo2.png", label: "血氧" },
-  { src: "/images/app/sleep.png", label: "睡眠" },
-  { src: "/images/app/hrv.png", label: "HRV" },
-  { src: "/images/app/ecg-1.png", label: "ECG 心电" },
-  { src: "/images/app/radar.jpg", label: "风险雷达" },
+const APP_CATEGORIES = [
+  {
+    id: "risk",
+    title: "风险筛查",
+    description: "多模态心血管信号分析，直观呈现心脏负荷与潜在风险提示",
+    items: [
+      { src: "/images/app/radar.jpg", label: "多模态心血管风险雷达" },
+      { src: "/images/app/ecg-1.png", label: "心电图记录" },
+      { src: "/images/app/ecg-2.png", label: "心电图详情" },
+      { src: "/images/app/hrv.png", label: "HRV 心率变异性" },
+    ],
+  },
+  {
+    id: "vitals",
+    title: "基础体征",
+    description:
+      "7×24 小时无感不间断记录，每一次心跳与呼吸状态都在掌握之中",
+    items: [
+      { src: "/images/app/heart-rate.png", label: "全天心率监测" },
+      { src: "/images/app/spo2.png", label: "连续血氧饱和度" },
+      { src: "/images/app/blood-pressure.png", label: "血压趋势参考" },
+      { src: "/images/app/sleep.png", label: "睡眠深度分析" },
+    ],
+  },
+  {
+    id: "metabolism",
+    title: "代谢活动",
+    description:
+      "关注长期代谢指标波动，结合每日精准活动量，科学管理身体",
+    items: [
+      { src: "/images/app/glucose.png", label: "血糖趋势洞察" },
+      { src: "/images/app/lipid.png", label: "血脂趋势洞察" },
+      { src: "/images/app/uric-acid.png", label: "尿酸趋势洞察" },
+      { src: "/images/app/met.png", label: "梅脱 (MET) 能量代谢" },
+      { src: "/images/app/activity.png", label: "每日活动全记录" },
+    ],
+  },
+  {
+    id: "ai",
+    title: "主动健康守护",
+    description:
+      "专属 AI 智能体深度解读数据，支持自定义策略与远程亲友关爱",
+    items: [
+      { src: "/images/app/ai-report.png", label: "AI 深度健康解读" },
+      { src: "/images/app/ai-home.png", label: "24h 专属 AI 助手" },
+      { src: "/images/app/manual-test.png", label: "自动化监测策略" },
+      { src: "/images/app/family.jpg", label: "远程亲友关爱" },
+      { src: "/images/app/health-archive.jpg", label: "全局健康管理" },
+    ],
+  },
 ];
 
-function AppMatrix() {
+function AppGallery() {
   const sectionRef = useRef(null);
   const trackRef = useRef(null);
-  const [active, setActive] = useState(0);
+  const [activeCategoryId, setActiveCategoryId] = useState(
+    APP_CATEGORIES[0].id,
+  );
+  const [activeItem, setActiveItem] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const activeCategory =
+    APP_CATEGORIES.find((category) => category.id === activeCategoryId) ??
+    APP_CATEGORIES[0];
+  const items = activeCategory.items;
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
@@ -826,22 +921,46 @@ function AppMatrix() {
   const glowX = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
   const glowY = useTransform(scrollYProgress, [0, 1], [-40, 40]);
 
+  const updateScrollState = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.querySelector("[data-app-card]");
+    const step = card ? card.offsetWidth + 20 : 280;
+    const max = track.scrollWidth - track.clientWidth;
+    setActiveItem(
+      Math.min(items.length - 1, Math.round(track.scrollLeft / step)),
+    );
+    setCanScrollLeft(track.scrollLeft > 8);
+    setCanScrollRight(track.scrollLeft < max - 8);
+  };
+
   const scrollTrack = (direction) => {
     const track = trackRef.current;
     if (!track) return;
-    track.scrollBy({ left: direction * 300, behavior: "smooth" });
+    const card = track.querySelector("[data-app-card]");
+    const step = card ? card.offsetWidth + 20 : 280;
+    track.scrollBy({ left: direction * step, behavior: "smooth" });
   };
 
-  const handleTrackScroll = () => {
+  useEffect(() => {
     const track = trackRef.current;
-    if (!track) return;
-    const max = track.scrollWidth - track.clientWidth;
-    setActive(
-      max > 0
-        ? Math.round((track.scrollLeft / max) * (APP_SHOTS.length - 1))
-        : 0,
-    );
-  };
+    if (track) track.scrollTo({ left: 0, behavior: "auto" });
+    setActiveItem(0);
+    const frame = window.requestAnimationFrame(updateScrollState);
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeCategoryId]);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return undefined;
+    const observer = new ResizeObserver(updateScrollState);
+    observer.observe(track);
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [activeCategoryId]);
 
   return (
     <section id="app" ref={sectionRef} className="bg-slate-950 text-white">
@@ -851,46 +970,97 @@ function AppMatrix() {
           className="[grid-area:1/1] h-full w-[120%] bg-[radial-gradient(ellipse_at_30%_20%,rgba(45,212,191,0.18),transparent_55%),radial-gradient(ellipse_at_72%_78%,rgba(14,165,233,0.16),transparent_55%)]"
         />
 
-        <div className="[grid-area:1/1] mx-auto w-full max-w-[1280px] px-5 py-24 md:px-8 lg:px-10 lg:py-32">
-          <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-            <motion.div
-              initial="hidden"
-              whileInView="show"
-              variants={fadeUp}
-              viewport={inView}
-              transition={{ duration: 0.8, ease: EASE }}
-              className="max-w-2xl"
-            >
-              <p className="text-xs font-semibold tracking-[0.32em] text-teal-300">
-                App 体验
-              </p>
-              <h2 className="mt-5 text-[2.4rem] font-semibold leading-[1.14] tracking-[-0.03em] lg:text-[3.4rem]">
-                全维度指标，随时查看
-              </h2>
-              <p className="mt-6 text-base leading-8 text-slate-300">
-                心率、血氧、睡眠、心电与 HRV，在同一套界面里连续记录。
-              </p>
-            </motion.div>
+        <div className="[grid-area:1/1] mx-auto w-full min-w-0 max-w-[1280px] px-5 py-24 md:px-8 lg:px-10 lg:py-32">
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            variants={fadeUp}
+            viewport={inView}
+            transition={{ duration: 0.8, ease: EASE }}
+            className="max-w-2xl"
+          >
+            <p className="text-xs font-semibold tracking-[0.32em] text-teal-300">
+              App 体验
+            </p>
+            <h2 className="mt-5 text-[2rem] font-semibold leading-[1.14] tracking-[-0.03em] sm:text-[2.4rem] lg:text-[3.4rem]">
+              全维度指标，随时查看
+            </h2>
+            <p className="mt-6 text-base leading-8 text-slate-300">
+              按健康主题浏览 App 界面，快速找到每一项指标的解释与趋势。
+            </p>
+          </motion.div>
 
-            <div className="flex items-center gap-4">
-              <span className="text-xs tabular-nums tracking-[0.22em] text-white/45">
-                {String(active + 1).padStart(2, "0")} /{" "}
-                {String(APP_SHOTS.length).padStart(2, "0")}
+          <div
+            role="tablist"
+            aria-label="App 功能分类"
+            className="hide-scrollbar mt-10 flex w-full gap-1 overflow-x-auto rounded-full border border-white/10 bg-white/[0.045] p-1.5 backdrop-blur-xl sm:w-fit sm:gap-1.5"
+          >
+            {APP_CATEGORIES.map((category) => {
+              const selected = category.id === activeCategory.id;
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  role="tab"
+                  id={`app-tab-${category.id}`}
+                  aria-selected={selected}
+                  aria-controls={`app-panel-${category.id}`}
+                  tabIndex={selected ? 0 : -1}
+                  onClick={() => setActiveCategoryId(category.id)}
+                  className={`relative shrink-0 rounded-full px-2.5 py-2.5 text-[13px] font-medium transition-colors sm:px-5 sm:text-sm ${
+                    selected
+                      ? "text-slate-950"
+                      : "text-white/55 hover:text-white"
+                  }`}
+                >
+                  {selected && (
+                    <motion.span
+                      layoutId="app-category-pill"
+                      className="absolute inset-0 rounded-full bg-white shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 32,
+                      }}
+                    />
+                  )}
+                  <span className="relative z-10">{category.title}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <h3 className="text-xl font-semibold tracking-[-0.02em] text-white sm:text-2xl">
+                {activeCategory.title}
+              </h3>
+              <p className="mt-2 text-sm leading-7 text-white/50">
+                {activeCategory.description}
+              </p>
+            </div>
+
+            <div className="flex flex-none items-center gap-3">
+              <span className="text-xs tabular-nums tracking-[0.22em] text-white/40">
+                {String(activeItem + 1).padStart(2, "0")} /{" "}
+                {String(items.length).padStart(2, "0")}
               </span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => scrollTrack(-1)}
-                  aria-label="上一屏"
-                  className="rounded-full border border-white/15 bg-white/5 p-2.5 text-white/80 transition hover:scale-105 hover:bg-white/10"
+                  disabled={!canScrollLeft}
+                  aria-label="上一张 App 界面"
+                  className="rounded-full border border-white/15 bg-white/5 p-2.5 text-white/80 transition hover:scale-105 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:scale-100"
                 >
                   <ChevronLeftIcon />
                 </button>
                 <button
                   type="button"
                   onClick={() => scrollTrack(1)}
-                  aria-label="下一屏"
-                  className="rounded-full border border-white/15 bg-white/5 p-2.5 text-white/80 transition hover:scale-105 hover:bg-white/10"
+                  disabled={!canScrollRight}
+                  aria-label="下一张 App 界面"
+                  className="rounded-full border border-white/15 bg-white/5 p-2.5 text-white/80 transition hover:scale-105 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:scale-100"
                 >
                   <ChevronRightIcon />
                 </button>
@@ -899,37 +1069,64 @@ function AppMatrix() {
           </div>
 
           <div
-            ref={trackRef}
-            onScroll={handleTrackScroll}
-            className="hide-scrollbar mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 md:gap-6"
+            id={`app-panel-${activeCategory.id}`}
+            role="tabpanel"
+            aria-labelledby={`app-tab-${activeCategory.id}`}
+            className="mt-6 min-w-0"
           >
-            {APP_SHOTS.map((shot, shotIndex) => (
-              <motion.article
-                key={shot.src}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-10%" }}
-                transition={{ duration: 0.7, ease: EASE }}
-                className="w-[230px] shrink-0 snap-start sm:w-[250px]"
+            <div
+              ref={trackRef}
+              tabIndex={0}
+              onScroll={updateScrollState}
+              onKeyDown={(event) => {
+                if (event.key === "ArrowRight") {
+                  event.preventDefault();
+                  scrollTrack(1);
+                }
+                if (event.key === "ArrowLeft") {
+                  event.preventDefault();
+                  scrollTrack(-1);
+                }
+              }}
+              aria-label={`${activeCategory.title} App 界面，横向滚动浏览`}
+              className="hide-scrollbar -mx-1 snap-x snap-mandatory overflow-x-auto px-1 pb-10 pt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950"
+            >
+              <motion.div
+                key={activeCategory.id}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, ease: EASE }}
+                className="flex w-max gap-5"
               >
-                <div className="rounded-[2.4rem] border border-white/10 bg-white/[0.06] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.3)]">
-                  <div className="overflow-hidden rounded-[2rem] bg-white">
-                    <img
-                      src={shot.src}
-                      alt={`App 界面：${shot.label}`}
-                      loading="lazy"
-                      className="aspect-[9/19.5] w-full object-cover"
-                    />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center justify-between text-sm">
-                  <span className="font-medium text-white/90">{shot.label}</span>
-                  <span className="text-xs tabular-nums text-white/35">
-                    {String(shotIndex + 1).padStart(2, "0")}
-                  </span>
-                </div>
-              </motion.article>
-            ))}
+                {items.map((item, itemIndex) => (
+                  <article
+                    key={item.src}
+                    data-app-card
+                    className="w-[248px] shrink-0 snap-start sm:w-[268px] lg:w-[300px]"
+                  >
+                    <div className="rounded-[38px] border-4 border-white/10 bg-white/[0.055] p-2.5 shadow-[0_28px_70px_rgba(0,0,0,0.4)] transition-transform duration-500 ease-out hover:scale-105">
+                      <div className="overflow-hidden rounded-[30px] bg-slate-950">
+                        <img
+                          src={item.src}
+                          alt={`App 界面：${item.label}`}
+                          loading="lazy"
+                          decoding="async"
+                          className="aspect-[9/19.5] w-full object-cover"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-4 flex items-start justify-between gap-3 px-1">
+                      <p className="text-sm font-medium leading-6 text-white/90">
+                        {item.label}
+                      </p>
+                      <span className="pt-0.5 text-[10px] tabular-nums tracking-[0.18em] text-white/30">
+                        {String(itemIndex + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                  </article>
+                ))}
+              </motion.div>
+            </div>
           </div>
 
           <p className="mt-6 text-xs leading-6 text-white/40">
@@ -1026,7 +1223,9 @@ function BrandBento() {
               <p className="text-xl font-semibold tracking-[-0.02em] text-slate-900 md:text-2xl">
                 昊克云智（杭州）科技有限公司
               </p>
-              <p className="mt-3 text-sm text-slate-400">灵跃健康</p>
+              <p className="mt-3 text-sm text-slate-400">
+                SynChord · 灵跃健康
+              </p>
             </div>
           </motion.div>
 
@@ -1173,7 +1372,7 @@ function FaqSection() {
   );
 }
 
-function ClosingCta() {
+function ClosingCta({ onPurchase }) {
   return (
     <section id="contact" className="bg-slate-950 text-white">
       <div className="grid overflow-hidden">
@@ -1189,7 +1388,7 @@ function ClosingCta() {
               transition={{ duration: 0.8, ease: EASE }}
             >
               <p className="text-xs font-semibold tracking-[0.32em] text-teal-300">
-                产品咨询
+                官方商城
               </p>
               <h2 className="mt-5 text-[2.4rem] font-semibold leading-[1.12] tracking-[-0.03em] lg:text-[3.6rem]">
                 把主动健康管理
@@ -1200,13 +1399,15 @@ function ClosingCta() {
                 从了解自己的每一天开始，建立属于自己的健康基线。
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-3">
-                <a
-                  href="#colors"
+                <button
+                  type="button"
+                  onClick={onPurchase}
+                  aria-haspopup="dialog"
                   className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-400 to-sky-500 px-7 py-4 text-sm font-semibold text-white shadow-[0_14px_34px_rgba(14,165,233,0.3)] transition-transform hover:scale-[1.02]"
                 >
-                  探索产品
+                  立即购买
                   <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </a>
+                </button>
                 <a
                   href="#value"
                   className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-7 py-4 text-sm font-semibold text-white transition-transform hover:scale-[1.02] hover:bg-white/10"
@@ -1238,7 +1439,7 @@ function ClosingCta() {
         <div className="mx-auto flex max-w-[1280px] flex-col gap-4 px-5 py-8 text-xs leading-6 text-white/45 md:flex-row md:items-center md:justify-between md:px-8 lg:px-10">
           <div className="flex flex-none items-center gap-2 whitespace-nowrap text-white/70">
             <BrandMark className="h-6 w-6" />
-            <span>© 2026 灵跃健康</span>
+            <span>© 2026 SynChord · 灵跃健康</span>
           </div>
           <p className="max-w-3xl md:text-right">
             本产品用于生理信号监测与健康管理参考，不替代专业医生诊断，也不替代专业医疗机构的诊疗服务。如出现胸痛、呼吸困难等不适，请及时前往专业医疗机构就诊。
@@ -1249,22 +1450,143 @@ function ClosingCta() {
   );
 }
 
+function PurchaseModal({ open, onClose }) {
+  const closeRef = useRef(null);
+  const restoreFocusRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    restoreFocusRef.current = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    const frame = window.requestAnimationFrame(() => {
+      closeRef.current?.focus();
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+      if (restoreFocusRef.current instanceof HTMLElement) {
+        restoreFocusRef.current.focus();
+      }
+    };
+  }, [open, onClose]);
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3, ease: EASE }}
+          onClick={onClose}
+          className="fixed inset-0 z-[120] flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4 backdrop-blur-2xl"
+        >
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="purchase-modal-title"
+            aria-describedby="purchase-modal-description"
+            initial={{ opacity: 0, y: 24, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.97 }}
+            transition={{ duration: 0.4, ease: EASE }}
+            onClick={(event) => event.stopPropagation()}
+            className="relative my-auto w-full max-w-[420px] overflow-hidden rounded-[2.25rem] border border-white/60 bg-white/90 p-6 shadow-[0_40px_120px_rgba(2,6,23,0.5)] backdrop-blur-2xl sm:p-8"
+          >
+            <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-teal-300/30 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -left-16 h-48 w-48 rounded-full bg-sky-300/20 blur-3xl" />
+
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={onClose}
+              aria-label="关闭购买弹窗"
+              className="absolute right-4 top-4 z-10 rounded-full border border-slate-200/80 bg-white/70 p-2 text-slate-500 backdrop-blur transition hover:rotate-90 hover:text-slate-900"
+            >
+              <CloseIcon className="h-4 w-4" />
+            </button>
+
+            <div className="relative">
+              <p className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-teal-600">
+                <span className="h-1 w-1 rounded-full bg-teal-500" />
+                前往微盟商城
+              </p>
+              <h2
+                id="purchase-modal-title"
+                className="mt-4 text-3xl font-semibold tracking-[-0.03em] text-slate-900"
+              >
+                官方商城
+              </h2>
+              <p
+                id="purchase-modal-description"
+                className="mt-3 text-sm leading-7 text-slate-500"
+              >
+                微信扫码，进入灵跃健康官方商城。
+              </p>
+
+              <div className="relative mx-auto mt-7 w-full max-w-[248px]">
+                <div className="absolute -inset-4 rounded-[2.25rem] bg-gradient-to-br from-teal-300/25 via-sky-400/10 to-transparent blur-2xl" />
+                <div className="relative rounded-[1.75rem] border border-slate-200/80 bg-white p-3 shadow-[0_20px_50px_rgba(15,23,42,0.12)]">
+                  <img
+                    src="/images/brand/wechat-miniprogram-qr.jpg"
+                    alt="灵跃健康官方商城微信小程序二维码"
+                    loading="eager"
+                    decoding="async"
+                    className="aspect-square w-full rounded-[1.25rem] object-contain"
+                  />
+                </div>
+              </div>
+
+              <p className="mx-auto mt-6 flex w-fit items-center gap-2 rounded-full border border-teal-200/80 bg-teal-50 px-4 py-2 text-xs font-semibold text-teal-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+                请使用微信扫码
+              </p>
+              <p className="mt-3 text-center text-[11px] leading-6 text-slate-400">
+                打开微信 → 扫一扫 → 进入官方商城
+              </p>
+            </div>
+
+            <p className="relative mt-6 border-t border-slate-200/70 pt-4 text-center text-[11px] leading-6 text-slate-400">
+              如二维码无法识别，请更新微信后重试。
+            </p>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 export default function App() {
+  const [purchaseOpen, setPurchaseOpen] = useState(false);
+  const openPurchase = useCallback(() => setPurchaseOpen(true), []);
+  const closePurchase = useCallback(() => setPurchaseOpen(false), []);
+
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-screen bg-white text-slate-900">
-        <SiteNav />
+        <SiteNav onPurchase={openPurchase} />
         <main>
-          <Hero />
+          <Hero onPurchase={openPurchase} />
           <ColorSwitcher />
           <ValueSticky />
-          <VersionCompare />
-          <AppMatrix />
+          <VersionCompare onPurchase={openPurchase} />
+          <AppGallery />
           <BrandBento />
           <FaqSection />
-          <ClosingCta />
+          <ClosingCta onPurchase={openPurchase} />
         </main>
       </div>
+      <PurchaseModal open={purchaseOpen} onClose={closePurchase} />
     </MotionConfig>
   );
 }
