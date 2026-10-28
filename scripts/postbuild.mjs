@@ -49,7 +49,7 @@ if (label) {
   let html = await readFile(htmlPath, "utf8");
 
   if (!html.includes('id="version-switch"')) {
-    const badge = `<a id="version-switch" href="${href}" style="position:fixed;right:16px;bottom:16px;z-index:9999;display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid rgba(148,163,184,.35);border-radius:999px;background:rgba(15,23,42,.82);color:#e2e8f0;font:500 12px/1.2 -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;text-decoration:none;backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(2,6,23,.24)">${label} · 切换版本</a>`;
+    const badge = `<a id="version-switch" href="${href}" style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9999;display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid rgba(148,163,184,.35);border-radius:999px;background:rgba(15,23,42,.82);color:#e2e8f0;font:500 12px/1.2 -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;text-decoration:none;backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(2,6,23,.24);white-space:nowrap">${label} · 切换版本</a>`;
     html = html.replace("</body>", `${badge}\n</body>`);
     await writeFile(htmlPath, html);
   }
