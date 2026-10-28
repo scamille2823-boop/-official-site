@@ -308,8 +308,8 @@ function Hero({ onPurchase }) {
               transition={{ duration: 0.9, ease: EASE, delay: 0.1 }}
               className="text-[2rem] font-semibold leading-[1.12] tracking-[-0.045em] text-slate-900 sm:text-[3.2rem] lg:text-[clamp(3.3rem,5.1vw,4.9rem)]"
             >
-              <span className="block">关注心血管风险，</span>
-              <span className="block">主动管理每一天</span>
+              <span className="block">关注心血管风险</span>
+              <span className="block">主动守护每一天</span>
             </motion.h1>
 
             <motion.div
@@ -902,13 +902,17 @@ const APP_CATEGORIES = [
 
 function AppGallery() {
   const sectionRef = useRef(null);
+  const viewportRef = useRef(null);
   const trackRef = useRef(null);
   const [activeCategoryId, setActiveCategoryId] = useState(
     APP_CATEGORIES[0].id,
   );
   const [activeItem, setActiveItem] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [metrics, setMetrics] = useState({
+    step: 380,
+    maxOffset: 0,
+    maxIndex: 0,
+  });
   const activeCategory =
     APP_CATEGORIES.find((category) => category.id === activeCategoryId) ??
     APP_CATEGORIES[0];
@@ -921,46 +925,60 @@ function AppGallery() {
   const glowX = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
   const glowY = useTransform(scrollYProgress, [0, 1], [-40, 40]);
 
-  const updateScrollState = () => {
+  const readMetrics = () => {
+    const viewport = viewportRef.current;
     const track = trackRef.current;
-    if (!track) return;
-    const card = track.querySelector("[data-app-card]");
-    const step = card ? card.offsetWidth + 20 : 280;
-    const max = track.scrollWidth - track.clientWidth;
-    setActiveItem(
-      Math.min(items.length - 1, Math.round(track.scrollLeft / step)),
+    const card = track?.querySelector("[data-app-card]");
+    const step = card ? card.offsetWidth + 20 : 380;
+    const maxOffset = Math.max(
+      0,
+      (track?.scrollWidth ?? 0) - (viewport?.clientWidth ?? 0),
     );
-    setCanScrollLeft(track.scrollLeft > 8);
-    setCanScrollRight(track.scrollLeft < max - 8);
+    return {
+      step,
+      maxOffset,
+      maxIndex: Math.max(0, Math.ceil(maxOffset / step)),
+    };
   };
 
-  const scrollTrack = (direction) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const card = track.querySelector("[data-app-card]");
-    const step = card ? card.offsetWidth + 20 : 280;
-    track.scrollBy({ left: direction * step, behavior: "smooth" });
+  const goTo = (direction) => {
+    const nextMetrics = readMetrics();
+    setMetrics(nextMetrics);
+    setActiveItem((current) => {
+      const index = Math.min(current, nextMetrics.maxIndex);
+      if (direction > 0) {
+        return index >= nextMetrics.maxIndex ? 0 : index + 1;
+      }
+      return index <= 0 ? nextMetrics.maxIndex : index - 1;
+    });
+  };
+
+  const goToIndex = (index) => {
+    const nextMetrics = readMetrics();
+    setMetrics(nextMetrics);
+    setActiveItem(Math.max(0, Math.min(index, nextMetrics.maxIndex)));
   };
 
   useEffect(() => {
-    const track = trackRef.current;
-    if (track) track.scrollTo({ left: 0, behavior: "auto" });
-    setActiveItem(0);
-    const frame = window.requestAnimationFrame(updateScrollState);
-    return () => window.cancelAnimationFrame(frame);
-  }, [activeCategoryId]);
+    const measure = () => {
+      const nextMetrics = readMetrics();
+      setMetrics(nextMetrics);
+      setActiveItem((current) => Math.min(current, nextMetrics.maxIndex));
+    };
 
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return undefined;
-    const observer = new ResizeObserver(updateScrollState);
-    observer.observe(track);
-    window.addEventListener("resize", updateScrollState);
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (viewportRef.current) observer.observe(viewportRef.current);
+    if (trackRef.current) observer.observe(trackRef.current);
+    window.addEventListener("resize", measure);
+
     return () => {
       observer.disconnect();
-      window.removeEventListener("resize", updateScrollState);
+      window.removeEventListener("resize", measure);
     };
-  }, [activeCategoryId]);
+  }, [activeCategoryId, items.length]);
+
+  const offset = Math.min(activeItem * metrics.step, metrics.maxOffset);
 
   return (
     <section id="app" ref={sectionRef} className="bg-slate-950 text-white">
@@ -1006,7 +1024,10 @@ function AppGallery() {
                   aria-selected={selected}
                   aria-controls={`app-panel-${category.id}`}
                   tabIndex={selected ? 0 : -1}
-                  onClick={() => setActiveCategoryId(category.id)}
+                  onClick={() => {
+                    setActiveCategoryId(category.id);
+                    setActiveItem(0);
+                  }}
                   className={`relative shrink-0 rounded-full px-2.5 py-2.5 text-[13px] font-medium transition-colors sm:px-5 sm:text-sm ${
                     selected
                       ? "text-slate-950"
@@ -1042,25 +1063,27 @@ function AppGallery() {
 
             <div className="flex flex-none items-center gap-3">
               <span className="text-xs tabular-nums tracking-[0.22em] text-white/40">
-                {String(activeItem + 1).padStart(2, "0")} /{" "}
-                {String(items.length).padStart(2, "0")}
+                {String(Math.min(activeItem, metrics.maxIndex) + 1).padStart(
+                  2,
+                  "0",
+                )}{" "}
+                /{" "}
+                {String(metrics.maxIndex + 1).padStart(2, "0")}
               </span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => scrollTrack(-1)}
-                  disabled={!canScrollLeft}
-                  aria-label="上一张 App 界面"
-                  className="rounded-full border border-white/15 bg-white/5 p-2.5 text-white/80 transition hover:scale-105 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:scale-100"
+                  onClick={() => goTo(-1)}
+                  aria-label="上一组 App 界面"
+                  className="rounded-full border border-white/15 bg-white/5 p-2.5 text-white/80 transition hover:scale-105 hover:bg-white/10"
                 >
                   <ChevronLeftIcon />
                 </button>
                 <button
                   type="button"
-                  onClick={() => scrollTrack(1)}
-                  disabled={!canScrollRight}
-                  aria-label="下一张 App 界面"
-                  className="rounded-full border border-white/15 bg-white/5 p-2.5 text-white/80 transition hover:scale-105 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:scale-100"
+                  onClick={() => goTo(1)}
+                  aria-label="下一组 App 界面"
+                  className="rounded-full border border-white/15 bg-white/5 p-2.5 text-white/80 transition hover:scale-105 hover:bg-white/10"
                 >
                   <ChevronRightIcon />
                 </button>
@@ -1075,34 +1098,57 @@ function AppGallery() {
             className="mt-6 min-w-0"
           >
             <div
-              ref={trackRef}
+              ref={viewportRef}
               tabIndex={0}
-              onScroll={updateScrollState}
+              role="group"
+              aria-roledescription="carousel"
+              aria-label={`${activeCategory.title} App 界面轮播`}
               onKeyDown={(event) => {
                 if (event.key === "ArrowRight") {
                   event.preventDefault();
-                  scrollTrack(1);
+                  goTo(1);
                 }
                 if (event.key === "ArrowLeft") {
                   event.preventDefault();
-                  scrollTrack(-1);
+                  goTo(-1);
                 }
               }}
-              aria-label={`${activeCategory.title} App 界面，横向滚动浏览`}
-              className="hide-scrollbar -mx-1 snap-x snap-mandatory overflow-x-auto px-1 pb-10 pt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950"
+              className="relative -mx-1 overflow-hidden px-1 pb-10 pt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950"
             >
               <motion.div
+                ref={trackRef}
                 key={activeCategory.id}
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
+                drag="x"
+                dragConstraints={{ left: -metrics.maxOffset, right: 0 }}
+                dragElastic={0.05}
+                dragMomentum={false}
+                dragDirectionLock
+                onDragEnd={(_, info) => {
+                  const threshold = Math.min(80, metrics.step * 0.18);
+                  if (info.offset.x < -threshold) {
+                    setActiveItem((current) =>
+                      Math.min(metrics.maxIndex, current + 1),
+                    );
+                  } else if (info.offset.x > threshold) {
+                    setActiveItem((current) => Math.max(0, current - 1));
+                  }
+                }}
+                animate={{ x: -offset }}
                 transition={{ duration: 0.55, ease: EASE }}
-                className="flex w-max gap-5"
+                className="flex w-max cursor-grab touch-pan-y gap-5 active:cursor-grabbing"
               >
                 {items.map((item, itemIndex) => (
-                  <article
+                  <motion.article
                     key={item.src}
                     data-app-card
-                    className="w-[248px] shrink-0 snap-start sm:w-[268px] lg:w-[300px]"
+                    initial={{ opacity: 0, y: 26, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{
+                      duration: 0.5,
+                      ease: EASE,
+                      delay: itemIndex * 0.055,
+                    }}
+                    className="w-[252px] shrink-0 snap-start sm:w-[300px] lg:w-[360px]"
                   >
                     <div className="rounded-[38px] border-4 border-white/10 bg-white/[0.055] p-2.5 shadow-[0_28px_70px_rgba(0,0,0,0.4)] transition-transform duration-500 ease-out hover:scale-105">
                       <div className="overflow-hidden rounded-[30px] bg-slate-950">
@@ -1123,9 +1169,33 @@ function AppGallery() {
                         {String(itemIndex + 1).padStart(2, "0")}
                       </span>
                     </div>
-                  </article>
+                  </motion.article>
                 ))}
               </motion.div>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-1.5" aria-label="App 界面分页">
+                {Array.from({ length: metrics.maxIndex + 1 }).map(
+                  (_, dotIndex) => (
+                    <button
+                      key={dotIndex}
+                      type="button"
+                      onClick={() => goToIndex(dotIndex)}
+                      aria-label={`跳到第 ${dotIndex + 1} 组`}
+                      aria-current={activeItem === dotIndex ? "true" : undefined}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        activeItem === dotIndex
+                          ? "w-8 bg-teal-300"
+                          : "w-2.5 bg-white/20 hover:bg-white/40"
+                      }`}
+                    />
+                  ),
+                )}
+              </div>
+              <p className="text-[11px] tracking-[0.08em] text-white/35">
+                左右滑动，查看全部界面
+              </p>
             </div>
           </div>
 
