@@ -985,10 +985,10 @@ function AppGallery() {
       <div className="grid overflow-hidden">
         <motion.div
           style={{ x: glowX, y: glowY }}
-          className="[grid-area:1/1] h-full w-[120%] bg-[radial-gradient(ellipse_at_30%_20%,rgba(45,212,191,0.18),transparent_55%),radial-gradient(ellipse_at_72%_78%,rgba(14,165,233,0.16),transparent_55%)]"
+          className="pointer-events-none [grid-area:1/1] h-full w-[120%] bg-[radial-gradient(ellipse_at_30%_20%,rgba(45,212,191,0.18),transparent_55%),radial-gradient(ellipse_at_72%_78%,rgba(14,165,233,0.16),transparent_55%)]"
         />
 
-        <div className="[grid-area:1/1] mx-auto w-full min-w-0 max-w-[1280px] px-5 py-24 md:px-8 lg:px-10 lg:py-32">
+        <div className="relative z-10 [grid-area:1/1] mx-auto w-full min-w-0 max-w-[1280px] px-5 py-24 md:px-8 lg:px-10 lg:py-32">
           <motion.div
             initial="hidden"
             whileInView="show"
@@ -1446,9 +1446,9 @@ function ClosingCta({ onPurchase }) {
   return (
     <section id="contact" className="bg-slate-950 text-white">
       <div className="grid overflow-hidden">
-        <div className="[grid-area:1/1] h-full w-[120%] bg-[radial-gradient(ellipse_at_50%_18%,rgba(14,165,233,0.2),transparent_58%)]" />
+        <div className="pointer-events-none [grid-area:1/1] h-full w-[120%] bg-[radial-gradient(ellipse_at_50%_18%,rgba(14,165,233,0.2),transparent_58%)]" />
 
-        <div className="[grid-area:1/1] mx-auto w-full max-w-[1280px] px-5 py-24 md:px-8 lg:px-10 lg:py-32">
+        <div className="relative z-10 [grid-area:1/1] mx-auto w-full max-w-[1280px] px-5 py-24 md:px-8 lg:px-10 lg:py-32">
           <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
             <motion.div
               initial="hidden"
